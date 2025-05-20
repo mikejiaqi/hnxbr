@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工业油漆数据库</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles_enhanced.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">工业油漆数据库</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-page="database" href="#">数据库</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="add-product" href="#">添加产品</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="import-export" href="#">导入/导出</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="help" href="#">帮助</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 数据库页面 -->
+        <div id="database-page" class="page active">
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5>油漆产品列表</h5>
+                            <div class="input-group" style="max-width: 300px;">
+                                <input type="text" id="search-input" class="form-control" placeholder="输入关键词搜索...">
+                                <button class="btn btn-outline-secondary" type="button" id="search-button">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th data-sort="name">产品名称 <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                                            <th data-sort="brand">品牌 <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                                            <th data-sort="type">类型 <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                                            <th data-sort="color">颜色 <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                                            <th data-sort="solidContent">固体含量(%) <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                                            <th data-sort="density">比重 <i class="bi bi-arrow-down-up sort-icon"></i></th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="product-list">
+                                        <!-- 产品列表将通过JavaScript动态生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="no-data-message" class="text-center p-3 d-none">
+                                <p>暂无数据，请添加产品或导入数据。</p>
+                                <button class="btn btn-primary" id="add-first-product-btn">添加第一个产品</button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    显示 <span id="showing-records">0-0</span> 条，共 <span id="total-records">0</span> 条
+                                </div>
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination" id="pagination">
+                                        <!-- 分页控件将通过JavaScript动态生成 -->
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加/编辑产品页面 -->
+        <div id="add-product-page" class="page">
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 id="form-title">添加新产品</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="product-form">
+                                <input type="hidden" id="product-id">
+                                
+                                <!-- 基本信息 -->
+                                <div class="section-header">
+                                    <h6>基本信息</h6>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-name" class="form-label">产品名称 <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="product-name" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-brand" class="form-label">品牌</label>
+                                        <input type="text" class="form-control" id="product-brand">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-type" class="form-label">类型</label>
+                                        <select class="form-select" id="product-type">
+                                            <option value="">请选择...</option>
+                                            <option value="底漆">底漆</option>
+                                            <option value="中间漆">中间漆</option>
+                                            <option value="面漆">面漆</option>
+                                            <option value="防腐漆">防腐漆</option>
+                                            <option value="防锈漆">防锈漆</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-color" class="form-label">颜色</label>
+                                        <input type="text" class="form-control" id="product-color">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-application-method" class="form-label">施工方式</label>
+                                        <select class="form-select" id="product-application-method">
+                                            <option value="">请选择...</option>
+                                            <option value="无气喷涂">无气喷涂</option>
+                                            <option value="有气喷涂">有气喷涂</option>
+                                            <option value="辊涂">辊涂</option>
+                                            <option value="刷涂">刷涂</option>
+                                            <option value="浸涂">浸涂</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-coat-count" class="form-label">涂刷道数</label>
+                                        <input type="number" class="form-control" id="product-coat-count" min="1" step="1">
+                                    </div>
+                                </div>
+
+                                <!-- 核心参数区域 -->
+                                <div class="section-header core-params-header">
+                                    <h6>核心参数 <small class="text-muted">(输入这些参数将自动计算其他值)</small></h6>
+                                </div>
+                                <div class="row core-params-section">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-film-thickness" class="form-label">干膜厚度(μm) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control core-param" id="product-film-thickness" min="0" required>
+                                        <small class="text-muted">输入此值将自动计算理论材料耗量</small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-solid-content" class="form-label">固体含量(%) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control core-param" id="product-solid-content" min="0" max="100" required>
+                                        <small class="text-muted">输入此值将自动计算理论材料耗量</small>
+                                        <div class="invalid-feedback">固体含量必须在0-100%之间</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-density" class="form-label">比重 <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control core-param" id="product-density" min="0.01" step="0.01" required>
+                                        <small class="text-muted">输入此值将自动计算kg相关参数</small>
+                                        <div class="invalid-feedback">比重必须大于0</div>
+                                    </div>
+                                </div>
+                                <div class="row core-params-section">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-loss-factor" class="form-label">损耗系数 <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control core-param" id="product-loss-factor" min="1" step="0.1" value="1" required>
+                                        <small class="text-muted">输入此值将自动计算实际材料耗量</small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-price-per-l" class="form-label">单位价格(元/L)</label>
+                                        <input type="number" class="form-control core-param" id="product-price-per-l" min="0" step="0.01">
+                                        <small class="text-muted">输入此值将自动计算总成本</small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-total-area" class="form-label">涂装总面积(㎡)</label>
+                                        <input type="number" class="form-control core-param" id="product-total-area" min="0" step="0.01">
+                                        <small class="text-muted">输入此值将自动计算涂装用量和总成本</small>
+                                    </div>
+                                </div>
+
+                                <!-- 自动计算区域 -->
+                                <div class="section-header auto-calc-header">
+                                    <h6>自动计算结果 <small class="text-muted">(基于核心参数自动计算)</small></h6>
+                                </div>
+                                <div class="row auto-calc-section">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="product-theoretical-coverage-l" class="form-label">理论材料耗量(㎡/L)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-theoretical-coverage-l" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 固体含量 × 10 / 干膜厚度</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="product-theoretical-coverage-kg" class="form-label">理论材料耗量(㎡/kg)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-theoretical-coverage-kg" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 理论材料耗量(㎡/L) / 比重</small>
+                                    </div>
+                                </div>
+                                <div class="row auto-calc-section">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="product-actual-coverage-l" class="form-label">实际材料耗量(㎡/L)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-actual-coverage-l" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 理论材料耗量(㎡/L) / 损耗系数</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="product-actual-coverage-kg" class="form-label">实际材料耗量(㎡/kg)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-actual-coverage-kg" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 理论材料耗量(㎡/kg) / 损耗系数</small>
+                                    </div>
+                                </div>
+
+                                <!-- 涂装计算区域 -->
+                                <div class="section-header coating-calc-header">
+                                    <h6>涂装计算 <small class="text-muted">(基于涂装总面积自动计算)</small></h6>
+                                </div>
+                                <div class="row coating-calc-section">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-total-volume-l" class="form-label">涂装用量(L)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-total-volume-l" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 涂装总面积 / 实际材料耗量(㎡/L)</small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-total-weight-kg" class="form-label">涂装用量(kg)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-total-weight-kg" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 涂装总面积 / 实际材料耗量(㎡/kg)</small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-total-cost" class="form-label">总成本(元)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-total-cost" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 涂装用量(L) × 单位价格(元/L)</small>
+                                    </div>
+                                </div>
+
+                                <!-- 其他信息 -->
+                                <div class="section-header">
+                                    <h6>其他信息</h6>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-price-per-kg" class="form-label">单位价格(元/kg)</label>
+                                        <input type="number" class="form-control" id="product-price-per-kg" min="0" step="0.01">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-price-per-sqm" class="form-label">单位价格(元/㎡)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-calculator"></i></span>
+                                            <input type="number" class="form-control auto-calc" id="product-price-per-sqm" readonly>
+                                        </div>
+                                        <small class="text-muted">计算公式: 单位价格(元/L) / 实际材料耗量(㎡/L)</small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="product-notes" class="form-label">备注</label>
+                                        <textarea class="form-control" id="product-notes" rows="1"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 text-end">
+                                        <button type="button" class="btn btn-secondary" id="cancel-button">取消</button>
+                                        <button type="submit" class="btn btn-primary" id="save-button">保存</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导入/导出页面 -->
+        <div id="import-export-page" class="page">
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>导出数据</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>将当前数据库导出为文件，方便备份或迁移。</p>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" id="export-json-btn">导出为JSON</button>
+                                <button class="btn btn-primary" id="export-csv-btn">导出为CSV (Excel兼容)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>导入数据</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>从文件导入数据，支持JSON和CSV格式。</p>
+                            <div class="mb-3">
+                                <label for="import-file" class="form-label">选择文件</label>
+                                <input class="form-control" type="file" id="import-file" accept=".json,.csv">
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="replace-data">
+                                <label class="form-check-label" for="replace-data">
+                                    替换现有数据（不勾选则追加）
+                                </label>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" id="import-btn" disabled>导入</button>
+                            </div>
+                            <div class="mt-3 d-none" id="import-progress-container">
+                                <label class="form-label">导入进度</label>
+                                <div class="progress">
+                                    <div class="progress-bar" id="import-progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="mt-2" id="import-status"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>数据示例</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>您可以下载示例数据，了解导入文件的格式要求。</p>
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button class="btn btn-outline-primary" id="download-json-sample">下载JSON示例</button>
+                                <button class="btn btn-outline-primary" id="download-csv-sample">下载CSV示例</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 帮助页面 -->
+        <div id="help-page" class="page">
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>使用说明</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>1. 数据库概述</h6>
+                            <p>本应用是一个工业油漆数据库，用于存储和查询各种油漆产品的技术参数。所有数据存储在浏览器本地，无需服务器支持。</p>
+                            
+                            <h6>2. 基本功能</h6>
+                            <ul>
+                                <li><strong>浏览数据</strong>：在"数据库"页面查看所有油漆产品</li>
+                                <li><strong>搜索产品</strong>：使用搜索框输入关键词查找产品</li>
+                                <li><strong>添加产品</strong>：点击"添加产品"导航项，填写表单添加新产品</li>
+                                <li><strong>编辑/删除</strong>：在产品列表中使用操作按钮编辑或删除产品</li>
+                                <li><strong>导入/导出</strong>：在"导入/导出"页面备份或恢复数据</li>
+                            </ul>
+                            
+                            <h6>3. 自动计算功能</h6>
+                            <p>本应用提供强大的自动计算功能，您只需输入以下核心参数：</p>
+                            <ul>
+                                <li><strong>干膜厚度(μm)</strong></li>
+                                <li><strong>固体含量(%)</strong></li>
+                                <li><strong>比重</strong></li>
+                                <li><strong>损耗系数</strong></li>
+                                <li><strong>涂装总面积(㎡)</strong>（可选，用于计算涂装用量）</li>
+                                <li><strong>单位价格(元/L)</strong>（可选，用于计算成本）</li>
+                            </ul>
+                            <p>系统将自动计算以下结果：</p>
+                            <ul>
+                                <li><strong>理论材料耗量(㎡/L)</strong> = 固体含量 × 10 / 干膜厚度</li>
+                                <li><strong>理论材料耗量(㎡/kg)</strong> = 理论材料耗量(㎡/L) / 比重</li>
+                                <li><strong>实际材料耗量(㎡/L)</strong> = 理论材料耗量(㎡/L) / 损耗系数</li>
+                                <li><strong>实际材料耗量(㎡/kg)</strong> = 理论材料耗量(㎡/kg) / 损耗系数</li>
+                                <li><strong>涂装用量(L)</strong> = 涂装总面积 / 实际材料耗量(㎡/L)</li>
+                                <li><strong>涂装用量(kg)</strong> = 涂装总面积 / 实际材料耗量(㎡/kg)</li>
+                                <li><strong>总成本(元)</strong> = 涂装用量(L) × 单位价格(元/L)</li>
+                                <li><strong>单位价格(元/㎡)</strong> = 单位价格(元/L) / 实际材料耗量(㎡/L)</li>
+                            </ul>
+                            
+                            <h6>4. 数据字段说明</h6>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>字段名称</th>
+                                        <th>说明</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>产品名称</td>
+                                        <td>油漆的名称，必填项</td>
+                                    </tr>
+                                    <tr>
+                                        <td>品牌</td>
+                                        <td>油漆的品牌或制造商</td>
+                                    </tr>
+                                    <tr>
+                                        <td>类型</td>
+                                        <td>油漆的类型，如底漆、中间漆、面漆等</td>
+                                    </tr>
+                                    <tr>
+                                        <td>颜色</td>
+                                        <td>油漆的颜色</td>
+                                    </tr>
+                                    <tr>
+                                        <td>干膜厚度(μm)</td>
+                                        <td>涂层干燥后的厚度，核心参数，必填项</td>
+                                    </tr>
+                                    <tr>
+                                        <td>固体含量(%)</td>
+                                        <td>油漆中固体成分的百分比，核心参数，必填项，0-100之间</td>
+                                    </tr>
+                                    <tr>
+                                        <td>比重</td>
+                                        <td>油漆的密度比值，核心参数，必填项，大于0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>涂刷道数</td>
+                                        <td>需要涂刷的次数</td>
+                                    </tr>
+                                    <tr>
+                                        <td>施工方式</td>
+                                        <td>油漆的应用方法</td>
+                                    </tr>
+                                    <tr>
+                                        <td>损耗系数</td>
+                                        <td>实际施工中的材料损耗系数，核心参数，必填项，大于等于1</td>
+                                    </tr>
+                                    <tr>
+                                        <td>理论材料耗量(㎡/L)</td>
+                                        <td>理论上每升油漆可涂刷的面积，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>理论材料耗量(㎡/kg)</td>
+                                        <td>理论上每千克油漆可涂刷的面积，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>实际材料耗量(㎡/L)</td>
+                                        <td>考虑损耗后每升油漆可涂刷的面积，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>实际材料耗量(㎡/kg)</td>
+                                        <td>考虑损耗后每千克油漆可涂刷的面积，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>涂装总面积(㎡)</td>
+                                        <td>需要涂装的总面积，用于计算涂装用量</td>
+                                    </tr>
+                                    <tr>
+                                        <td>涂装用量(L)</td>
+                                        <td>完成涂装所需的油漆体积，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>涂装用量(kg)</td>
+                                        <td>完成涂装所需的油漆重量，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>单位价格(元/L)</td>
+                                        <td>每升油漆的价格</td>
+                                    </tr>
+                                    <tr>
+                                        <td>单位价格(元/kg)</td>
+                                        <td>每千克油漆的价格</td>
+                                    </tr>
+                                    <tr>
+                                        <td>单位价格(元/㎡)</td>
+                                        <td>每平方米涂装的价格，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>总成本(元)</td>
+                                        <td>完成涂装的总成本，自动计算</td>
+                                    </tr>
+                                    <tr>
+                                        <td>备注</td>
+                                        <td>其他相关信息</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <h6>5. 数据存储</h6>
+                            <p>所有数据存储在浏览器的本地存储中，不会上传到任何服务器。请定期导出备份您的数据，以防浏览器缓存被清除导致数据丢失。</p>
+                            
+                            <h6>6. 常见问题</h6>
+                            <div class="accordion" id="faqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                            如何使用自动计算功能？
+                                        </button>
+                                    </h2>
+                                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            只需输入核心参数（干膜厚度、固体含量、比重、损耗系数），系统会自动计算理论和实际材料耗量。如果再输入涂装总面积和单位价格，系统还会自动计算涂装用量和总成本。
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                            数据会自动保存吗？
+                                        </button>
+                                    </h2>
+                                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            是的，所有添加、编辑和删除操作都会自动保存到浏览器的本地存储中。
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                            如何在不同设备间共享数据？
+                                        </button>
+                                    </h2>
+                                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            您可以在一台设备上导出数据为JSON或CSV文件，然后在另一台设备上导入该文件。
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                            如何清空所有数据？
+                                        </button>
+                                    </h2>
+                                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            在导入/导出页面，选择一个空的JSON文件并勾选"替换现有数据"选项，然后点击导入。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 产品详情模态框 -->
+        <div class="modal fade" id="product-detail-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="product-detail-title">产品详情</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs" id="detailTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic-tab-pane" type="button" role="tab" aria-controls="basic-tab-pane" aria-selected="true">基本信息</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="calculator-tab" data-bs-toggle="tab" data-bs-target="#calculator-tab-pane" type="button" role="tab" aria-controls="calculator-tab-pane" aria-selected="false">涂装计算器</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="detailTabsContent">
+                            <!-- 基本信息标签页 -->
+                            <div class="tab-pane fade show active" id="basic-tab-pane" role="tabpanel" aria-labelledby="basic-tab" tabindex="0">
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <th>产品名称</th>
+                                                <td id="detail-name"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>品牌</th>
+                                                <td id="detail-brand"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>类型</th>
+                                                <td id="detail-type"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>颜色</th>
+                                                <td id="detail-color"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>干膜厚度(μm)</th>
+                                                <td id="detail-film-thickness"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>固体含量(%)</th>
+                                                <td id="detail-solid-content"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>比重</th>
+                                                <td id="detail-density"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>涂刷道数</th>
+                                                <td id="detail-coat-count"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>施工方式</th>
+                                                <td id="detail-application-method"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>备注</th>
+                                                <td id="detail-notes"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <th>理论材料耗量(㎡/L)</th>
+                                                <td id="detail-theoretical-coverage-l"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>理论材料耗量(㎡/kg)</th>
+                                                <td id="detail-theoretical-coverage-kg"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>损耗系数</th>
+                                                <td id="detail-loss-factor"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>实际材料耗量(㎡/L)</th>
+                                                <td id="detail-actual-coverage-l"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>实际材料耗量(㎡/kg)</th>
+                                                <td id="detail-actual-coverage-kg"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>单位价格(元/L)</th>
+                                                <td id="detail-price-per-l"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>单位价格(元/kg)</th>
+                                                <td id="detail-price-per-kg"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>单位价格(元/㎡)</th>
+                                                <td id="detail-price-per-sqm"></td>
+                                            </tr>
+                                            <tr>
+                                                <th>更新日期</th>
+                                                <td id="detail-update-date"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 涂装计算器标签页 -->
+                            <div class="tab-pane fade" id="calculator-tab-pane" role="tabpanel" aria-labelledby="calculator-tab" tabindex="0">
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i> 输入涂装面积，计算所需油漆用量和成本
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="detail-calc-area" class="form-label">涂装总面积(㎡)</label>
+                                            <input type="number" class="form-control" id="detail-calc-area" min="0" step="0.01">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="detail-calc-loss-factor" class="form-label">损耗系数</label>
+                                            <input type="number" class="form-control" id="detail-calc-loss-factor" min="1" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0">计算结果</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <th>涂装用量(L)</th>
+                                                        <td id="detail-calc-volume-l"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>涂装用量(kg)</th>
+                                                        <td id="detail-calc-weight-kg"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>总成本(元)</th>
+                                                        <td id="detail-calc-cost"></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" id="detail-edit-btn">编辑</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 确认删除模态框 -->
+        <div class="modal fade" id="confirm-delete-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">确认删除</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>确定要删除产品 "<span id="delete-product-name"></span>" 吗？此操作无法撤销。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-danger" id="confirm-delete-btn">删除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示消息 -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+            <div id="toast-container"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app_enhanced.js"></script>
+</body>
+</html>
